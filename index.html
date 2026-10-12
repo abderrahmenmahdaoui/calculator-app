@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scientific Calculator</title>
+<style>
+:root{--bg:#e8edf2;--case:#252b31;--screen:#c8d7c2;--key:#f4f5f6;--op:#dce5e8;--accent:#f0a23a;--text:#17212b}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#dce5ec,#f8fafc);font-family:Arial,sans-serif;color:var(--text);padding:18px}
+.calculator{width:min(100%,390px);background:var(--case);border-radius:28px;padding:20px;box-shadow:0 22px 50px #17212b40;border:2px solid #3c444c}
+.brand{display:flex;justify-content:space-between;align-items:center;color:#f6f7f8;margin:0 3px 14px}
+.brand strong{font-size:19px;letter-spacing:1px}.brand span{font-size:11px;color:#b8c1c8}
+.screen{background:var(--screen);border:4px solid #14191d;border-radius:10px;min-height:105px;padding:12px 14px;margin-bottom:16px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+#history{font-size:13px;color:#435345;min-height:18px;direction:ltr;text-align:left;overflow-wrap:anywhere}
+#display{font-family:"Courier New",monospace;font-size:30px;direction:ltr;text-align:right;white-space:nowrap;overflow-x:auto;color:#152218;min-height:39px}
+.controls{display:flex;gap:8px;margin-bottom:10px}
+.mode{flex:1;border:0;border-radius:8px;padding:9px;background:#414a51;color:white;font-weight:bold;cursor:pointer}
+.mode.active{background:#b5d4a7;color:#1b2b1a}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+button.key{min-width:0;height:49px;border:0;border-radius:10px;background:var(--key);color:#17212b;font-size:16px;font-weight:600;box-shadow:0 3px 0 #aab1b7;cursor:pointer;transition:transform .06s,filter .1s}
+button.key:active{transform:translateY(2px);box-shadow:0 1px 0 #aab1b7}
+button.key.fn{background:var(--op)}button.key.op{background:#c7d6de}button.key.orange{background:var(--accent);color:#211607;box-shadow:0 3px 0 #a96b1b}
+button.key.equals{background:#8fbd7d;box-shadow:0 3px 0 #527a45}
+button.key.wide{grid-column:span 2}
+.note{color:#aeb8be;font-size:11px;text-align:center;margin:14px 0 0;line-height:1.6}
+@media(max-width:360px){.calculator{padding:14px}.keys{gap:6px}button.key{height:44px;font-size:14px}#display{font-size:25px}}
+</style>
+</head>
+<body>
+<main class="calculator">
+  <div class="brand"><strong>CASIO STYLE</strong><span>SCIENTIFIC CALCULATOR</span></div>
+  <div class="screen">
+    <div id="history">جاهزة للحساب</div>
+    <div id="display">0</div>
+  </div>
+  <div class="controls">
+    <button class="mode active" id="deg" onclick="setMode('DEG')">DEG</button>
+    <button class="mode" id="rad" onclick="setMode('RAD')">RAD</button>
+    <button class="mode" onclick="memoryClear()">MC</button>
+    <button class="mode" onclick="memoryRecall()">MR</button>
+    <button class="mode" onclick="memoryAdd()">M+</button>
+  </div>
+  <div class="keys">
+    <button class="key fn" onclick="insert('sin(')">sin</button>
+    <button class="key fn" onclick="insert('cos(')">cos</button>
+    <button class="key fn" onclick="insert('tan(')">tan</button>
+    <button class="key fn" onclick="insert('log(')">log</button>
+    <button class="key fn" onclick="insert('ln(')">ln</button>
+
+    <button class="key fn" onclick="insert('asin(')">sin⁻¹</button>
+    <button class="key fn" onclick="insert('acos(')">cos⁻¹</button>
+    <button class="key fn" onclick="insert('atan(')">tan⁻¹</button>
+    <button class="key fn" onclick="insert('√(')">√</button>
+    <button class="key fn" onclick="insert('^2')">x²</button>
+
+    <button class="key fn" onclick="insert('π')">π</button>
+    <button class="key fn" onclick="insert('e')">e</button>
+    <button class="key fn" onclick="insert('^')">xʸ</button>
+    <button class="key fn" onclick="insert('!')">n!</button>
+    <button class="key fn" onclick="insert('1/(')">1/x</button>
+
+    <button class="key" onclick="insert('(')">(</button>
+    <button class="key" onclick="insert(')')">)</button>
+    <button class="key orange" onclick="backspace()">DEL</button>
+    <button class="key orange" onclick="clearAll()">AC</button>
+    <button class="key op" onclick="insert('÷')">÷</button>
+
+    <button class="key" onclick="insert('7')">7</button>
+    <button class="key" onclick="insert('8')">8</button>
+    <button class="key" onclick="insert('9')">9</button>
+    <button class="key op" onclick="insert('×')">×</button>
+    <button class="key op" onclick="insert('−')">−</button>
+
+    <button class="key" onclick="insert('4')">4</button>
+    <button class="key" onclick="insert('5')">5</button>
+    <button class="key" onclick="insert('6')">6</button>
+    <button class="key op" onclick="insert('+')">+</button>
+    <button class="key fn" onclick="insert('%')">%</button>
+
+    <button class="key" onclick="insert('1')">1</button>
+    <button class="key" onclick="insert('2')">2</button>
+    <button class="key" onclick="insert('3')">3</button>
+    <button class="key" onclick="insert('0')">0</button>
+    <button class="key" onclick="insert('.')">.</button>
+
+    <button class="key fn" onclick="insert('Ans')">Ans</button>
+    <button class="key fn" onclick="insert('abs(')">abs</button>
+    <button class="key fn" onclick="insert('floor(')">floor</button>
+    <button class="key fn" onclick="insert('ceil(')">ceil</button>
+    <button class="key equals" onclick="calculate()">=</button>
+  </div>
+  <p class="note">تقدر تستعمل لوحة المفاتيح أيضًا · Enter للحساب · Escape للمسح</p>
+</main>
+<script>
+const display = document.getElementById('display');
+const historyEl = document.getElementById('history');
+let expression = '';
+let answer = 0;
+let mode = 'DEG';
+let memory = 0;
+
+function render(){ display.textContent = expression || '0'; }
+function insert(value){
+  if(display.textContent === 'Error' || display.textContent === 'غير معرّف'){ expression=''; }
+  if(value === 'Ans') expression += String(answer);
+  else expression += value;
+  render();
+}
+function clearAll(){ expression=''; historyEl.textContent='تم المسح'; render(); }
+function backspace(){ expression=expression.slice(0,-1); render(); }
+function setMode(m){
+  mode=m;
+  document.getElementById('deg').classList.toggle('active',m==='DEG');
+  document.getElementById('rad').classList.toggle('active',m==='RAD');
+  historyEl.textContent='الوضع: '+m;
+}
+function factorial(n){
+  if(!Number.isInteger(n)||n<0||n>170) throw Error('factorial');
+  let out=1; for(let i=2;i<=n;i++) out*=i; return out;
+}
+function calculate(){
+  if(!expression.trim()) return;
+  try{
+    let s=expression
+      .replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-')
+      .replace(/π/g,'Math.PI')
+      .replace(/\be\b/g,'Math.E')
+      .replace(/Ans/g,'('+answer+')')
+      .replace(/√\(/g,'sqrt(')
+      .replace(/\^/g,'**')
+      .replace(/(\d+(?:\.\d+)?)%/g,'($1/100)')
+      .replace(/(\d+(?:\.\d+)?|\([^()]*\))!/g,'factorial($1)');
+    const toRad = x => mode==='DEG' ? x*Math.PI/180 : x;
+    const fromRad = x => mode==='DEG' ? x*180/Math.PI : x;
+    const sin = x => Math.sin(toRad(x));
+    const cos = x => Math.cos(toRad(x));
+    const tan = x => Math.tan(toRad(x));
+    const asin = x => fromRad(Math.asin(x));
+    const acos = x => fromRad(Math.acos(x));
+    const atan = x => fromRad(Math.atan(x));
+    const log = x => Math.log10(x);
+    const ln = x => Math.log(x);
+    const sqrt = x => Math.sqrt(x);
+    const abs = x => Math.abs(x);
+    const floor = x => Math.floor(x);
+    const ceil = x => Math.ceil(x);
+    if(!/^[0-9+\-*/().,\sA-Za-z_*]+$/.test(s)) throw Error('invalid');
+    const result = Function('sin','cos','tan','asin','acos','atan','log','ln','sqrt','abs','floor','ceil','factorial',
+      '"use strict"; return ('+s+');')(sin,cos,tan,asin,acos,atan,log,ln,sqrt,abs,floor,ceil,factorial);
+    if(typeof result!=='number' || !Number.isFinite(result)) throw Error('undefined');
+    historyEl.textContent=expression+' =';
+    answer=result;
+    expression=String(Number(result.toPrecision(12)));
+    render();
+  }catch(err){ display.textContent='Error'; historyEl.textContent='تحقق من العملية'; }
+}
+function currentValue(){ calculate(); const n=Number(expression); return Number.isFinite(n)?n:0; }
+function memoryClear(){memory=0;historyEl.textContent='الذاكرة تمسحت';}
+function memoryRecall(){insert(String(memory));}
+function memoryAdd(){memory+=currentValue();historyEl.textContent='تمت الإضافة للذاكرة';}
+document.addEventListener('keydown',e=>{
+  if(/^[0-9.]$/.test(e.key)) insert(e.key);
+  else if(e.key==='+') insert('+');
+  else if(e.key==='-') insert('−');
+  else if(e.key==='*') insert('×');
+  else if(e.key==='/') {e.preventDefault();insert('÷');}
+  else if(e.key==='Enter'||e.key==='='){e.preventDefault();calculate();}
+  else if(e.key==='Backspace') backspace();
+  else if(e.key==='Escape') clearAll();
+  else if(e.key==='('||e.key===')') insert(e.key);
+});
+</script>
+</body>
+</html>
